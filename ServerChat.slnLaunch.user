@@ -1,0 +1,15 @@
+[
+  {
+    "Name": "New Profile",
+    "Projects": [
+      {
+        "Path": "ServerChat\\ServerChat.csproj",
+        "Action": "Start"
+      },
+      {
+        "Path": "ClientChat\\ClientChat.csproj",
+        "Action": "Start"
+      }
+    ]
+  }
+]

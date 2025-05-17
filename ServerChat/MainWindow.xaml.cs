@@ -1,0 +1,304 @@
+﻿using System.Collections.ObjectModel;
+using System.IO;
+using System.Net;
+using System.Net.Sockets;
+using System.Text;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Documents;
+using System.Windows.Media;
+using System.Windows.Threading;
+
+namespace ServerChat
+{
+    /// <summary>
+    /// Interaction logic for MainWindow.xaml
+    /// </summary>
+    public partial class MainWindow : Window
+    {
+        private TcpListener server;
+        private bool isRunning = false;
+        private NetworkStream stream;
+        private List<TcpClient> clients = new List<TcpClient>();
+        private List<string> clientNames = new();
+        private byte[] lastSelectedEmojiBytes;
+        public MainWindow()
+        {
+            InitializeComponent();
+            txtChatLog.Document.LineHeight = 1;
+            lstClients.Items.Clear();
+        }
+
+        private void btnStart_Click(object sender, RoutedEventArgs e)
+        {
+            if (!isRunning)
+            {
+                StartServer("192.168.149.1", 13000);
+                border_btnStart.Background = Brushes.Red;
+                btnStart.Foreground = Brushes.White;
+                btnStart.Content = "Stop Server";
+            }
+            else
+            {
+                StopServer();
+                border_btnStart.Background = Brushes.LightGreen;
+                btnStart.Content = "Start Server";
+            }
+        }
+
+        private void StopServer()
+        {
+            isRunning = false;
+            try
+            {
+                foreach (var client in clients)
+                {
+                    client.Close();
+                }
+                clients.Clear();
+                clientNames.Clear();
+
+                Dispatcher.Invoke(() =>
+                {
+                    lstClients.Items.Clear();
+                });
+
+                server.Stop();
+            }
+            catch { }
+            AppendLog("Server stopped.");
+        }
+
+        private void btnSend_Click(object sender, RoutedEventArgs e)
+        {
+            // Lấy nội dung text từ RichTextBox
+            TextRange textRange = new TextRange(txtMessage.Document.ContentStart, txtMessage.Document.ContentEnd);
+            string displayMessage = textRange.Text.Trim();
+
+            // Lấy emoji được chọn (giống như client làm)
+            string emojiPart = lastSelectedEmojiBytes != null && lastSelectedEmojiBytes.Length > 0
+                ? Encoding.UTF8.GetString(lastSelectedEmojiBytes)
+                : "";
+
+            // Ghép message + emoji
+            string finalMessage = displayMessage + emojiPart;
+
+            if (string.IsNullOrWhiteSpace(finalMessage))
+                return;
+
+            if (clients == null || clients.Count == 0)
+            {
+                MessageBox.Show("No clients connected. Please start server and wait for clients to connect.",
+                                "Connection Error",
+                                MessageBoxButton.OK,
+                                MessageBoxImage.Warning);
+                return;
+            }
+
+            try
+            {
+                // Gửi message từ server
+                byte[] data = Encoding.UTF8.GetBytes($"[Server]: {finalMessage}");
+
+                foreach (var client in clients)
+                {
+                    try
+                    {
+                        NetworkStream s = client.GetStream();
+                        s.Write(data, 0, data.Length);
+                    }
+                    catch (Exception ex)
+                    {
+                        AppendLog($"Failed to send to client: {ex.Message}", Brushes.OrangeRed);
+                    }
+                }
+
+                // Hiển thị lên log server
+                AppendLog($"[Server]: {finalMessage}");
+
+                // Reset emoji sau khi gửi
+                lastSelectedEmojiBytes = null;
+
+                // Xóa nội dung RichTextBox
+                txtMessage.Document.Blocks.Clear();
+            }
+            catch (Exception ex)
+            {
+                AppendLog("Send error: " + ex.Message, Brushes.Red);
+            }
+        }
+
+
+        private void StartServer(string host, int port)
+        {
+            try
+            {
+                IPAddress localAddress = IPAddress.Parse(host);
+                server = new TcpListener(localAddress, port);
+                server.Start();
+                isRunning = true;
+
+                AppendLog("Server started. Waiting for clients...", Brushes.Green);
+
+                // Received connection from client
+                Thread acceptThread = new Thread(() =>
+                {
+                    while (isRunning)
+                    {
+                        try
+                        {
+                            TcpClient client = server.AcceptTcpClient();
+                            Thread clientThread = new Thread(() => HandleClient(client));
+                            clientThread.IsBackground = true;
+                            clientThread.Start();
+                        }
+                        catch (SocketException)
+                        {
+                            // Server stopped
+                            break;
+                        }
+                    }
+                });
+                acceptThread.IsBackground = true;
+                acceptThread.Start();
+            }
+            catch (Exception ex)
+            {
+                AppendLog("Error starting server: " + ex.Message, Brushes.Red);
+            }
+        }
+
+        private void HandleClient(TcpClient client)
+        {
+            string clientName = null;
+            try
+            {
+                NetworkStream stream = client.GetStream();
+
+                byte[] buffer = new byte[1024];
+                // Get name
+                int bytesRead = stream.Read(buffer, 0, buffer.Length);
+                clientName = Encoding.UTF8.GetString(buffer, 0, bytesRead).Trim();
+
+                // Thêm client & tên vào danh sách
+                clients.Add(client);
+                clientNames.Add(clientName);
+
+                // Hiển thị tên lên UI
+                Dispatcher.Invoke(() =>
+                {
+                    lstClients.Items.Clear();
+                    foreach (var name in clientNames) {
+                        lstClients.Items.Add(name);
+                    }
+                        Dispatcher.Invoke(() =>
+                        {
+                            txtClientCount.Text = $"Total clients: {clients.Count}";
+                        });
+                });
+
+                while (isRunning && client.Connected)
+                {
+                    bytesRead = stream.Read(buffer, 0, buffer.Length);
+                    if (bytesRead == 0) break;
+
+                    string message = Encoding.UTF8.GetString(buffer, 0, bytesRead);
+                    //// Resend message to all clients (broadcast)
+                    foreach (var c in clients)
+                    {
+                        if (c == client) continue; // Bypass the client sending the message
+                        try
+                        {
+                            NetworkStream s = c.GetStream();
+                            byte[] data = Encoding.UTF8.GetBytes($"[{clientName}]: {message}");
+                            s.Write(data, 0, data.Length);
+                        }
+                        catch { }
+                    }
+
+                    // Received message from client
+                    Dispatcher.Invoke(() =>
+                    {
+                        AppendLog($"[{clientName}]: {message}");
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                Dispatcher.Invoke(() => AppendLog("Client error: " + ex.Message, Brushes.Red));
+            }
+            finally
+            {
+                // Client ngắt kết nối
+                clients.Remove(client);
+                clientNames.Remove(clientName);
+
+                Dispatcher.Invoke(() =>
+                {
+                    lstClients.Items.Clear();
+                    foreach (var name in clientNames)
+                    {
+
+                        lstClients.Items.Add(name);
+                    }
+                    Dispatcher.Invoke(() =>
+                    {
+                        txtClientCount.Text = $"Total clients: {clients.Count}";
+                    });
+                    AppendLog($"Client disconnected: {clientName}", Brushes.Red);
+                });
+
+                client.Close();
+            }
+        }
+        private void AppendLog(string message, SolidColorBrush color = null)
+        {
+            Dispatcher.Invoke(() =>
+            {
+                var emojiText = new Emoji.Wpf.TextBlock
+                {
+                    Text = message,
+                    Foreground = color ?? Brushes.Black,
+                    TextWrapping = TextWrapping.Wrap
+                };
+
+                txtChatLog.Document.Blocks.Add(new Paragraph(new InlineUIContainer(emojiText)));
+                txtChatLog.ScrollToEnd();
+            });
+        }
+
+        private void btnEmoji_Click(object sender, RoutedEventArgs e)
+        {
+            // Toggle emoji popup
+            emojiPopup.IsOpen = !emojiPopup.IsOpen;
+        }
+
+        private void Emoji_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is not Button button) return;
+
+            string? emoji = null;
+
+            // if Content is Emoji.Wpf.TextBlock then get .Text
+            if (button.Content is Emoji.Wpf.TextBlock emojiTextBlock)
+            {
+                emoji = emojiTextBlock.Text;
+            }
+            // if Content is string then assign directly
+            else if (button.Content is string directEmoji)
+            {
+                emoji = directEmoji;
+            }
+
+            if (!string.IsNullOrEmpty(emoji))
+            {
+                lastSelectedEmojiBytes = Encoding.UTF8.GetBytes(emoji);
+                txtMessage.Focus();
+                txtMessage.CaretPosition = txtMessage.Document.ContentEnd;
+                txtMessage.CaretPosition.InsertTextInRun(emoji);
+            }
+
+            emojiPopup.IsOpen = false;
+        }
+    }
+}

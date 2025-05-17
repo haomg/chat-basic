@@ -1,0 +1,207 @@
+﻿<Window x:Class="ClientChat.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:ClientChat"
+        xmlns:emoji="clr-namespace:Emoji.Wpf;assembly=Emoji.Wpf"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="560" Width="886" ResizeMode="NoResize">
+    <Grid Margin="1,1,1,1" Background="#AA60C8">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" MinHeight="406"/>
+            <RowDefinition Height="150"/>
+            <RowDefinition Height="0*"/>
+        </Grid.RowDefinitions>
+        <Border CornerRadius="10" Background="White" Margin="15,7,604,369" Height="30">
+            <Grid>
+                <!-- TextBox chính -->
+                <TextBox 
+                    x:Name="MyTextBox"
+                    Background="Transparent" 
+                    BorderThickness="0" 
+                    VerticalAlignment="Center" 
+                    Padding="5,0" Margin="4,0,0,0"/>
+
+                <!-- Watermark (placeholder) -->
+                <TextBlock Text="Enter your name"
+                   Foreground="Gray"
+                   Margin="11,0,0,0"
+                   VerticalAlignment="Center"
+                   IsHitTestVisible="False"
+                   HorizontalAlignment="Left">
+                    <TextBlock.Style>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="Visibility" Value="Collapsed"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding Text, ElementName=MyTextBox}" Value="">
+                                    <Setter Property="Visibility" Value="Visible"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBlock.Style>
+                </TextBlock>
+            </Grid>
+        </Border>
+
+        <Border CornerRadius="10" Margin="210,7,604,369" Background="LightGreen">
+            <Button x:Name="btnStart" 
+                Content="Connect" 
+                Height="30" 
+                Click="btnStart_Click" 
+                Background="Transparent"                  
+                BorderThickness="0"
+           />
+        </Border>
+
+        <Border Margin="15,48,14,60" CornerRadius="10" Background="#D69ADE" Grid.RowSpan="2">
+            <Grid Grid.RowSpan="3" Margin="0,0,0,-504">
+                <!-- Đây là cột phải -->
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <!-- Phần 2: Hiển thị tin nhắn -->
+
+                <emoji:RichTextBox x:Name="txtChat"
+                                     IsReadOnly="True"
+                                     Background="Transparent"
+                                     BorderThickness="0"                        
+                                     VerticalScrollBarVisibility="Auto"
+                                     FontSize="14"
+                                     Padding="0"
+                                     Margin="2,-1,-2,11">
+                    <emoji:RichTextBox.Resources>
+                        <Style TargetType="{x:Type Paragraph}">
+                            <Setter Property="Margin" Value="0"/>
+                        </Style>
+                    </emoji:RichTextBox.Resources>
+                </emoji:RichTextBox>
+
+
+
+
+                <!-- Phần 3: Ô nhập và nút gửi -->
+                <Grid Margin="4,324,5,530" Grid.RowSpan="2">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+
+                    <Border Grid.Column="0" CornerRadius="5" Background="White" Margin="5,74,5,0" Height="32" VerticalAlignment="Top">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="41*"/>
+                                <ColumnDefinition Width="53*"/>
+                            </Grid.ColumnDefinitions>
+                            <!-- TextBox thực -->
+                            <!-- Replace your current TextBox with this -->
+                            <emoji:RichTextBox x:Name="txtMessage"
+                                              BorderThickness="0" 
+                                              Background="Transparent" 
+                                              Margin="5,7,0,1"
+                                              VerticalContentAlignment="Center" 
+                                              HorizontalAlignment="Left" 
+                                              Width="825" Grid.ColumnSpan="2" />
+
+                            <!-- Watermark hiển thị khi TextBox rỗng -->
+                            <TextBlock Text="Type your message here..."
+                                       Foreground="Gray"
+                                       Margin="8,0,0,0"
+                                       VerticalAlignment="Center"
+                                       HorizontalAlignment="Left"
+                                       IsHitTestVisible="False">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding Text, ElementName=txtMessage}" Value="">
+                                                <Setter Property="Visibility" Value="Visible"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                        </Grid>
+                    </Border>
+
+                    <!-- Nút emoji -->
+                    <Border CornerRadius="5" Background="White" Padding="0" Margin="721,74,69,0">
+                        <Button x:Name="btnEmoji"
+                                Content="😊"
+                                FontSize="20"
+                                Foreground="White"
+                                Background="#6DE1D2"
+                                BorderThickness="0"
+                                Click="btnEmoji_Click" Margin="14,0,-15,0" Height="32" VerticalAlignment="Center" />
+                    </Border>
+
+                    <!-- Send button-->
+                    <Border CornerRadius="5" Background="White" Margin="778,74,6,0" Height="32" VerticalAlignment="Top">
+                        <Button Content="➤"
+                                FontSize="20"
+                                Background="Transparent"
+                                BorderThickness="0"
+                                Foreground="#6DE1D2" Height="32"
+                                HorizontalContentAlignment="Center"
+                                VerticalContentAlignment="Center"
+                                Click="btnSend_Click" />
+                    </Border>
+                </Grid>
+            </Grid>
+        </Border>
+        <Popup x:Name="emojiPopup"
+               PlacementTarget="{Binding ElementName=btnEmoji}"
+               Placement="Top"
+               StaysOpen="False"
+               PopupAnimation="Fade"
+               AllowsTransparency="True">
+            <Border Background="White" 
+                    BorderBrush="#DDDDDD" 
+                    BorderThickness="1" 
+                    CornerRadius="8" 
+                    Padding="10">
+                <UniformGrid Columns="6" Rows="3">
+                    <Button Click="Emoji_Click" Padding="5" Margin="2">
+                        <emoji:TextBlock Text="😀" FontSize="20"/>
+                    </Button>
+                    <Button Click="Emoji_Click" Padding="5" Margin="2">
+                        <emoji:TextBlock Text="😄" FontSize="20"/>
+                    </Button>
+                    <Button Click="Emoji_Click" Padding="5" Margin="2">
+                        <emoji:TextBlock Text="😍" FontSize="20"/>
+                    </Button>
+                    <Button Click="Emoji_Click" Padding="5" Margin="2">
+                        <emoji:TextBlock Text="😂" FontSize="20"/>
+                    </Button>
+                    <Button Click="Emoji_Click" Padding="5" Margin="2">
+                        <emoji:TextBlock Text="🥲" FontSize="20"/>
+                    </Button>
+                    <Button Click="Emoji_Click" Padding="5" Margin="2">
+                        <emoji:TextBlock Text="😎" FontSize="20"/>
+                    </Button>
+                    <Button Click="Emoji_Click" Padding="5" Margin="2">
+                        <emoji:TextBlock Text="🤔" FontSize="20"/>
+                    </Button>
+                    <Button Click="Emoji_Click" Padding="5" Margin="2">
+                        <emoji:TextBlock Text="😴" FontSize="20"/>
+                    </Button>
+                    <Button Click="Emoji_Click" Padding="5" Margin="2">
+                        <emoji:TextBlock Text="😡" FontSize="20"/>
+                    </Button>
+                    <Button Click="Emoji_Click" Padding="5" Margin="2">
+                        <emoji:TextBlock Text="🎉" FontSize="20"/>
+                    </Button>
+                    <Button Click="Emoji_Click" Padding="5" Margin="2">
+                        <emoji:TextBlock Text="🚀" FontSize="20"/>
+                    </Button>
+                    <Button Click="Emoji_Click" Padding="5" Margin="2">
+                        <emoji:TextBlock Text="❤️" FontSize="20"/>
+                    </Button>
+                </UniformGrid>
+            </Border>
+        </Popup>
+
+    </Grid>
+</Window>
