@@ -33,7 +33,8 @@ namespace ServerChat
         {
             if (!isRunning)
             {
-                StartServer("192.168.149.1", 13000);
+                //StartServer("192.168.1.17", 13000);
+                StartServer(13000);
                 border_btnStart.Background = Brushes.Red;
                 btnStart.Foreground = Brushes.White;
                 btnStart.Content = "Stop Server";
@@ -129,12 +130,11 @@ namespace ServerChat
         }
 
 
-        private void StartServer(string host, int port)
+        private void StartServer( int port)
         {
             try
             {
-                IPAddress localAddress = IPAddress.Parse(host);
-                server = new TcpListener(localAddress, port);
+                server = new TcpListener(IPAddress.Any, port);
                 server.Start();
                 isRunning = true;
 
@@ -170,6 +170,7 @@ namespace ServerChat
 
         private void HandleClient(TcpClient client)
         {
+            AppendLog($"Client trying to connect: {client.Client.RemoteEndPoint}", Brushes.Gray);
             string clientName = null;
             try
             {

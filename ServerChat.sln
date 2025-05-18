@@ -7,8 +7,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServerChat", "ServerChat\Se
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClientChat", "ClientChat\ClientChat.csproj", "{94301A7B-9AD0-4564-9FF7-3AB3346E4FF1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClientChat_2", "ClientChat_2\ClientChat_2.csproj", "{90A31E28-C978-450F-935C-C3298DAA524D}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -23,10 +21,6 @@ Global
 		{94301A7B-9AD0-4564-9FF7-3AB3346E4FF1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{94301A7B-9AD0-4564-9FF7-3AB3346E4FF1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{94301A7B-9AD0-4564-9FF7-3AB3346E4FF1}.Release|Any CPU.Build.0 = Release|Any CPU
-		{90A31E28-C978-450F-935C-C3298DAA524D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{90A31E28-C978-450F-935C-C3298DAA524D}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{90A31E28-C978-450F-935C-C3298DAA524D}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{90A31E28-C978-450F-935C-C3298DAA524D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

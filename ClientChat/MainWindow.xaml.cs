@@ -37,14 +37,17 @@ namespace ClientChat
 
             try
             {
-                client = new TcpClient("192.168.149.1", 13000);
+                client = new TcpClient(AddressFamily.InterNetwork);
+                client.Connect("192.168.1.17", 13000);
+
                 stream = client.GetStream();
 
-                // Gửi tên user lên server
+
+                // Send username to server
                 byte[] nameData = Encoding.UTF8.GetBytes(userName);
                 stream.Write(nameData, 0, nameData.Length);
 
-                // Bắt đầu nhận tin nhắn
+                // Start receiving messages
                 AppendMessage($"Connect successfully", Brushes.Green);
                 receiveThread = new Thread(ReceiveMessages);
                 receiveThread.IsBackground = true;
