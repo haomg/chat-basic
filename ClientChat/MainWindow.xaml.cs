@@ -37,9 +37,9 @@ namespace ClientChat
 
             try
             {
-                client = new TcpClient(AddressFamily.InterNetwork);
-                client.Connect("192.168.1.17", 13000);
-
+                //client = new TcpClient(AddressFamily.InterNetwork);
+                client = new TcpClient();
+                client.Connect("10.87.32.89", 13000);
                 stream = client.GetStream();
 
 
@@ -168,12 +168,25 @@ namespace ClientChat
 
             if (!string.IsNullOrEmpty(emoji))
             {
-                lastSelectedEmojiBytes = Encoding.UTF8.GetBytes(emoji);
+                byte[] emojiBytes = Encoding.UTF8.GetBytes(emoji);
+
+                if (lastSelectedEmojiBytes != null)
+                {
+                    // Nối mảng byte
+                    byte[] combined = new byte[lastSelectedEmojiBytes.Length + emojiBytes.Length];
+                    Buffer.BlockCopy(lastSelectedEmojiBytes, 0, combined, 0, lastSelectedEmojiBytes.Length);
+                    Buffer.BlockCopy(emojiBytes, 0, combined, lastSelectedEmojiBytes.Length, emojiBytes.Length);
+                    lastSelectedEmojiBytes = combined;
+                }
+                else
+                {
+                    lastSelectedEmojiBytes = emojiBytes;
+                }
+
                 txtMessage.Focus();
                 txtMessage.CaretPosition = txtMessage.Document.ContentEnd;
                 txtMessage.CaretPosition.InsertTextInRun(emoji);
             }
-
             emojiPopup.IsOpen = false;
         }
     }

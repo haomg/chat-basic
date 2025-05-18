@@ -24,3 +24,4 @@ E:\FPT\Semester_7\prn222\projects\ServerChat\ClientChat\bin\Debug\net8.0-windows
 E:\FPT\Semester_7\prn222\projects\ServerChat\ClientChat\bin\Debug\net8.0-windows\Typography.OpenFont.dll
 E:\FPT\Semester_7\prn222\projects\ServerChat\ClientChat\bin\Debug\net8.0-windows\Stfu.dll
 E:\FPT\Semester_7\prn222\projects\ServerChat\ClientChat\obj\Debug\net8.0-windows\ClientChat.csproj.Up2Date
+E:\FPT\Semester_7\prn222\projects\ServerChat\ClientChat\obj\Debug\net8.0-windows\ClientChat.sourcelink.json

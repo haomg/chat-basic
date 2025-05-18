@@ -32,7 +32,7 @@
              Background="Transparent" BorderThickness="0" Margin="0,0,0,-1"/>
         </Border>
 
-        <Border Margin="254,8,20,0" CornerRadius="10" Background="#D69ADE" Grid.RowSpan="2">
+        <Border Margin="254,8,20,0" CornerRadius="10" Background="#D69ADE" Height="486" VerticalAlignment="Top">
             <Grid Grid.RowSpan="3">
                 <!-- Đây là cột phải -->
                 <Grid.RowDefinitions>
@@ -44,20 +44,20 @@
                 <!-- Phần 1: Tên -->
 
                 <!-- Phần 2: Hiển thị tin nhắn -->
-                <emoji:RichTextBox x:Name="txtChatLog"  
-                                     Height="410" Width="604" 
+                <RichTextBox x:Name="txtChatLog" 
                                      IsReadOnly="True" 
                                      VerticalScrollBarVisibility="Auto"
                                      Background="Transparent" 
                                      BorderThickness="0"
                                      BorderBrush="Transparent"
                                      Padding="0"
-                                     Margin="0"
+                                     Margin="4,4,3,91"
+                                     FontSize="15"
                     />
 
 
                 <!-- Phần 3: Ô nhập và nút gửi -->
-                <Grid Margin="-1,348,1,416" Grid.RowSpan="2">
+                <Grid Margin="2,363,-2,47">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="608*" />
                         <ColumnDefinition Width="15*"/>
@@ -66,8 +66,7 @@
 
                     <Border Grid.Column="0" CornerRadius="5" Background="White" Margin="5,74,5,0" Height="32" VerticalAlignment="Top" Grid.ColumnSpan="2">
                         <Grid>
-                            <!-- TextBox thực -->
-                            <emoji:RichTextBox x:Name="txtMessage"
+                            <RichTextBox x:Name="txtMessage"
                                                BorderThickness="0" 
                                                Background="Transparent" 
                                                Margin="4,6,0,2"
@@ -131,10 +130,10 @@
                 PopupAnimation="Fade"
                 AllowsTransparency="True">
             <Border Background="White" 
-            BorderBrush="#DDDDDD" 
-            BorderThickness="1" 
-            CornerRadius="8" 
-            Padding="10">
+                    BorderBrush="#DDDDDD" 
+                    BorderThickness="1" 
+                    CornerRadius="8" 
+                    Padding="10">
                 <UniformGrid Columns="6" Rows="3">
                     <Button Click="Emoji_Click" Padding="5" Margin="2">
                         <emoji:TextBlock Text="😀" FontSize="20"/>

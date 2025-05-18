@@ -130,11 +130,12 @@ namespace ServerChat
         }
 
 
-        private void StartServer( int port)
+        private void StartServer(int port)
         {
             try
             {
-                server = new TcpListener(IPAddress.Any, port);
+                IPAddress host = IPAddress.Parse("10.87.32.89");
+                server = new TcpListener(host, port);
                 server.Start();
                 isRunning = true;
 
@@ -189,13 +190,14 @@ namespace ServerChat
                 Dispatcher.Invoke(() =>
                 {
                     lstClients.Items.Clear();
-                    foreach (var name in clientNames) {
+                    foreach (var name in clientNames)
+                    {
                         lstClients.Items.Add(name);
                     }
-                        Dispatcher.Invoke(() =>
-                        {
-                            txtClientCount.Text = $"Total clients: {clients.Count}";
-                        });
+                    Dispatcher.Invoke(() =>
+                    {
+                        txtClientCount.Text = $"Total clients: {clients.Count}";
+                    });
                 });
 
                 while (isRunning && client.Connected)
@@ -293,11 +295,26 @@ namespace ServerChat
 
             if (!string.IsNullOrEmpty(emoji))
             {
-                lastSelectedEmojiBytes = Encoding.UTF8.GetBytes(emoji);
+                byte[] emojiBytes = Encoding.UTF8.GetBytes(emoji);
+
+                if (lastSelectedEmojiBytes != null)
+                {
+                    // Nối mảng byte
+                    byte[] combined = new byte[lastSelectedEmojiBytes.Length + emojiBytes.Length];
+                    Buffer.BlockCopy(lastSelectedEmojiBytes, 0, combined, 0, lastSelectedEmojiBytes.Length);
+                    Buffer.BlockCopy(emojiBytes, 0, combined, lastSelectedEmojiBytes.Length, emojiBytes.Length);
+                    lastSelectedEmojiBytes = combined;
+                }
+                else
+                {
+                    lastSelectedEmojiBytes = emojiBytes;
+                }
+
                 txtMessage.Focus();
                 txtMessage.CaretPosition = txtMessage.Document.ContentEnd;
                 txtMessage.CaretPosition.InsertTextInRun(emoji);
             }
+
 
             emojiPopup.IsOpen = false;
         }
