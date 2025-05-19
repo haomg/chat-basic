@@ -37,9 +37,9 @@ namespace ClientChat
 
             try
             {
-                //client = new TcpClient(AddressFamily.InterNetwork);
-                client = new TcpClient();
-                client.Connect("10.87.32.89", 13000);
+                client = new TcpClient("192.168.149.1", 13000);
+                //client = new TcpClient();
+                //client.Connect("192.168.149.1", 13000);
                 stream = client.GetStream();
 
 

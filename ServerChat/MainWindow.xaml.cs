@@ -33,7 +33,6 @@ namespace ServerChat
         {
             if (!isRunning)
             {
-                //StartServer("192.168.1.17", 13000);
                 StartServer(13000);
                 border_btnStart.Background = Brushes.Red;
                 btnStart.Foreground = Brushes.White;
@@ -76,7 +75,7 @@ namespace ServerChat
             TextRange textRange = new TextRange(txtMessage.Document.ContentStart, txtMessage.Document.ContentEnd);
             string displayMessage = textRange.Text.Trim();
 
-            // Lấy emoji được chọn (giống như client làm)
+            // Lấy emoji được chọn
             string emojiPart = lastSelectedEmojiBytes != null && lastSelectedEmojiBytes.Length > 0
                 ? Encoding.UTF8.GetString(lastSelectedEmojiBytes)
                 : "";
@@ -113,14 +112,8 @@ namespace ServerChat
                         AppendLog($"Failed to send to client: {ex.Message}", Brushes.OrangeRed);
                     }
                 }
-
-                // Hiển thị lên log server
                 AppendLog($"[Server]: {finalMessage}");
-
-                // Reset emoji sau khi gửi
                 lastSelectedEmojiBytes = null;
-
-                // Xóa nội dung RichTextBox
                 txtMessage.Document.Blocks.Clear();
             }
             catch (Exception ex)
@@ -134,8 +127,7 @@ namespace ServerChat
         {
             try
             {
-                IPAddress host = IPAddress.Parse("10.87.32.89");
-                server = new TcpListener(host, port);
+                server = new TcpListener(IPAddress.Any, port);
                 server.Start();
                 isRunning = true;
 
@@ -171,7 +163,7 @@ namespace ServerChat
 
         private void HandleClient(TcpClient client)
         {
-            AppendLog($"Client trying to connect: {client.Client.RemoteEndPoint}", Brushes.Gray);
+            //AppendLog($"Client trying to connect: {client.Client.RemoteEndPoint}", Brushes.Gray);
             string clientName = null;
             try
             {
@@ -186,7 +178,7 @@ namespace ServerChat
                 clients.Add(client);
                 clientNames.Add(clientName);
 
-                // Hiển thị tên lên UI
+                // Hiển thị tên
                 Dispatcher.Invoke(() =>
                 {
                     lstClients.Items.Clear();
@@ -254,6 +246,7 @@ namespace ServerChat
                 client.Close();
             }
         }
+
         private void AppendLog(string message, SolidColorBrush color = null)
         {
             Dispatcher.Invoke(() =>
@@ -282,7 +275,7 @@ namespace ServerChat
 
             string? emoji = null;
 
-            // if Content is Emoji.Wpf.TextBlock then get .Text
+            // if Content is Emoji.Wpf.TextBlock then assign .Text
             if (button.Content is Emoji.Wpf.TextBlock emojiTextBlock)
             {
                 emoji = emojiTextBlock.Text;
