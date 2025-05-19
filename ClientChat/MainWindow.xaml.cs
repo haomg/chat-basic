@@ -130,18 +130,44 @@ namespace ClientChat
         {
             Dispatcher.Invoke(() =>
             {
+                // Create a paragraph for the message
+                Paragraph paragraph = new Paragraph();
+
+                // Determine if this is the user's own message
+                bool isOwnMessage = message.StartsWith("[You]:");
+
+                // Create the emoji text block for the message
                 var emojiText = new Emoji.Wpf.TextBlock
                 {
                     Text = message,
                     Foreground = color ?? Brushes.Black,
-                    TextWrapping = TextWrapping.Wrap
+                    TextWrapping = TextWrapping.Wrap,
+                    MaxWidth = 500  // Limit width to enable wrapping
                 };
 
-                txtChat.Document.Blocks.Add(new Paragraph(new InlineUIContainer(emojiText)));
+                // Create a border around the message
+                Border messageBorder = new Border
+                {
+                    Background = isOwnMessage ? Brushes.LightBlue : Brushes.White,
+                    CornerRadius = new CornerRadius(8),
+                    Padding = new Thickness(10, 5, 10, 5),
+                    Margin = new Thickness(5),
+                    Child = emojiText
+                };
+
+                // Add the border to an InlineUIContainer
+                InlineUIContainer container = new InlineUIContainer(messageBorder);
+
+                // Add alignment to the paragraph
+                paragraph.TextAlignment = isOwnMessage ? TextAlignment.Right : TextAlignment.Left;
+                paragraph.Margin = new Thickness(isOwnMessage ? 100 : 0, 5, isOwnMessage ? 0 : 100, 5);
+                paragraph.Inlines.Add(container);
+
+                // Add the paragraph to the RichTextBox
+                txtChat.Document.Blocks.Add(paragraph);
                 txtChat.ScrollToEnd();
             });
         }
-
 
         private void btnEmoji_Click(object sender, RoutedEventArgs e)
         {
